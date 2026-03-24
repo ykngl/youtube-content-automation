@@ -1,0 +1,19 @@
+{
+  "name": "youtube-ai-agent",
+  "version": "1.0.0",
+  "description": "YouTube AI Monitoring Agent - Sends a daily email digest of top AI-related YouTube videos.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["youtube", "ai", "monitoring", "automation"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "axios": "^1.13.6",
+    "dotenv": "^17.3.1",
+    "nodemailer": "^8.0.3"
+  }
+}

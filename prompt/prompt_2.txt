@@ -1,0 +1,171 @@
+The filtering logic needs major improvement.
+
+The returned videos are not truly representing the highest viewed AI-related long-form videos in India within the last 48 hours.
+
+You must upgrade BOTH:
+
+1) Topic intelligence (semantic filtering)
+2) Data collection + ranking accuracy
+
+Do NOT regenerate the whole project.
+Only improve filtering, ranking, and relevance detection logic.
+
+==================================================
+PRIMARY TARGET: INDIA ONLY
+==================================================
+
+1. REGION FILTER
+   - Use regionCode = "IN"
+   - Strictly target India.
+   - Do not fetch global results.
+
+2. LANGUAGE FLEXIBILITY
+   - Allow both Hindi and English content.
+   - Do NOT force language restriction unless necessary.
+
+==================================================
+SMART TOPIC DETECTION (SEMANTIC MATCHING REQUIRED)
+==================================================
+
+Do NOT rely only on exact keyword matching.
+
+The agent must understand meaning and context of videos related to:
+
+CORE THEMES:
+- AI Agent building
+- AI-powered app development
+- AI game development
+- AI automation workflows
+- No-code AI tools to build apps or agents
+- Using GPT/Gemini/Claude etc to build software
+
+Even if exact keywords are not present,
+if title or description clearly implies:
+- building an AI-powered app
+- creating automation using AI
+- generating mobile apps with AI tools
+- building SaaS using AI
+- creating bots or workflows using AI
+- step-by-step AI coding tutorials
+
+Then include it.
+
+EXCLUDE:
+- AI news
+- AI stock market
+- AI future predictions
+- AI business motivation
+- Generic ChatGPT tricks not related to development
+- Tech news without building element
+
+IMPLEMENT A SCORING SYSTEM:
+
+1. Define keyword clusters:
+   AI terms:
+   - AI
+   - GPT
+   - Gemini
+   - Claude
+   - LLM
+   - AI agent
+   - Automation
+
+   Development intent terms:
+   - build
+   - create
+   - tutorial
+   - step by step
+   - full guide
+   - coding
+   - development
+   - Android
+   - app
+   - game
+   - SaaS
+   - automation
+   - workflow
+   - API
+   - bot
+   - software
+
+2. If a video contains:
+   - at least one AI-related term
+   AND
+   - at least one development/build-related term
+   THEN it qualifies.
+
+3. Apply scoring:
+   - AI match = +2
+   - Development match = +2
+   - Tutorial/Guide intent = +1
+   - Penalize unrelated category = -3
+
+4. Only keep videos that cross a minimum relevance score threshold.
+
+Check BOTH title and description.
+
+==================================================
+DATA COLLECTION IMPROVEMENTS
+==================================================
+
+5. EXPAND SEARCH COVERAGE
+   - For each keyword, use maxResults=50.
+   - Use nextPageToken to fetch 2–3 pages per keyword if available.
+   - Combine all collected results from all keywords.
+
+6. STRICT 48-HOUR FILTER
+   - Generate accurate ISO timestamp for 48 hours before runtime.
+   - Use publishedAfter parameter.
+   - Additionally verify publishedAt manually in code.
+
+==================================================
+VIDEO QUALITY FILTERS
+==================================================
+
+7. EXCLUDE SHORTS
+   - Fetch contentDetails.
+   - Exclude videos shorter than 8 minutes.
+   - Only include long-form videos.
+
+8. REMOVE DUPLICATES
+   - Deduplicate strictly using videoId before ranking.
+
+==================================================
+ACCURATE VIEW RANKING
+==================================================
+
+9. FETCH STATISTICS
+   - Use videos endpoint with:
+     part=statistics,snippet,contentDetails
+
+10. SORTING LOGIC
+   - Convert viewCount to integer.
+   - Sort strictly in descending order.
+   - Select TOP 10 highest viewCount videos across India.
+
+11. MINIMUM QUALITY CHECK
+   - If top video has extremely low views (example <5,000),
+     expand pagination and reattempt before finalizing.
+
+==================================================
+DEBUG TRANSPARENCY
+==================================================
+
+12. LOG:
+   - Total videos collected initially
+   - After semantic scoring filter
+   - After 48h filter
+   - After duration filter
+   - After duplicate removal
+   - Final sorted top 10 with:
+        • relevance score
+        • view count
+        • duration
+
+Start by explaining:
+1) What was incorrect in the previous logic
+2) What exact improvements you are implementing
+3) How the new ranking will be more accurate
+
+Only modify filtering and ranking logic.
+Do not rewrite the entire system.
