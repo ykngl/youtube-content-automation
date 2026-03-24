@@ -4,6 +4,9 @@ node_modules/
 # Environment variables - NEVER commit this file
 .env
 
+# Generated output scripts
+outputs/
+
 # OS files
 .DS_Store
 Thumbs.db

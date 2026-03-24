@@ -28,4 +28,14 @@ jobs:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: node index.js
+
+      - name: 💾 Upload generated scripts as artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-scripts-${{ github.run_number }}
+          path: outputs/
+          retention-days: 30
+

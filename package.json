@@ -7,11 +7,17 @@
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["youtube", "ai", "monitoring", "automation"],
+  "keywords": [
+    "youtube",
+    "ai",
+    "monitoring",
+    "automation"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "axios": "^1.13.6",
     "dotenv": "^17.3.1",
     "nodemailer": "^8.0.3"
