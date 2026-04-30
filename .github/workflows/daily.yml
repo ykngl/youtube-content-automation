@@ -1,4 +1,4 @@
-name: YouTube AI Daily Digest
+name: YouTube AI Daily Digest — Phase 2
 
 on:
   schedule:
@@ -22,20 +22,33 @@ jobs:
       - name: 📦 Install dependencies
         run: npm install
 
-      - name: 🚀 Run YouTube AI Agent
+      - name: 🚀 Run YouTube AI Agent (Phase 2)
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # Phase 2D: Notion integration (optional — skip if not set)
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          # Phase 2E: Discord webhook (optional — skip if not set)
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: node index.js
 
-      - name: 💾 Upload generated scripts as artifacts
+      - name: 💾 Upload generated scripts & thumbnails as artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: daily-scripts-${{ github.run_number }}
-          path: outputs/
+          name: daily-content-${{ github.run_number }}
+          path: |
+            outputs/*.json
+            outputs/thumbnails/
+            outputs/topic_history.json
           retention-days: 30
 
+      - name: 🔔 Notify on failure
+        if: failure()
+        run: |
+          echo "❌ YouTube AI Agent failed on run #${{ github.run_number }}"
+          echo "Check the logs at: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

@@ -1,7 +1,10 @@
 // services/scriptMailer.js
 // Sends a beautifully formatted HTML email containing the AI-generated scripts
+// Phase 2C: supports inline thumbnail image attachment
 
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const path = require('path');
 
 /**
  * Formats a date string for display
@@ -15,7 +18,7 @@ function today() {
 /**
  * Builds the section HTML for a long-form video outline
  */
-function buildOutlineHTML(outline) {
+function buildOutlineHTML(outline, hasThumbnailImage = false) {
   if (!outline) return '';
 
   const sections = outline.sections
@@ -32,6 +35,17 @@ function buildOutlineHTML(outline) {
 
   const tags = outline.tags.map((t) => `<span style="display:inline-block; background:#EEF2FF; color:#4F46E5; border-radius:20px; padding:3px 10px; font-size:12px; margin: 3px;">#${t}</span>`).join('');
 
+  const thumbnailSection = hasThumbnailImage
+    ? `<div style="margin-top: 16px; text-align: center;">
+        <img src="cid:thumbnail" alt="Generated Thumbnail" width="560"
+             style="border-radius: 10px; max-width: 100%; display: block; margin: 0 auto; border: 2px solid #e8e8e8;" />
+        <div style="font-size: 11px; color: #888; margin-top: 6px;">AI-Generated Thumbnail Preview</div>
+      </div>`
+    : `<div style="margin-top: 16px; padding: 12px 16px; background: #FFFBEB; border-radius: 8px; border-left: 3px solid #F59E0B;">
+        <div style="font-size: 12px; font-weight: 700; color: #92400E; margin-bottom: 4px;">🖼 Thumbnail Concept</div>
+        <div style="font-size: 13px; color: #555;">${outline.thumbnailConcept}</div>
+      </div>`;
+
   return `
     <div style="background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); overflow: hidden; margin-top: 24px;">
       <div style="background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%); padding: 20px 28px;">
@@ -42,10 +56,7 @@ function buildOutlineHTML(outline) {
         <p style="color: #555; font-size: 13px; line-height: 1.6; margin: 0 0 16px 0;">${outline.description}</p>
         ${sections}
         <div style="margin-top: 16px;">${tags}</div>
-        <div style="margin-top: 16px; padding: 12px 16px; background: #FFFBEB; border-radius: 8px; border-left: 3px solid #F59E0B;">
-          <div style="font-size: 12px; font-weight: 700; color: #92400E; margin-bottom: 4px;">🖼 Thumbnail Concept</div>
-          <div style="font-size: 13px; color: #555;">${outline.thumbnailConcept}</div>
-        </div>
+        ${thumbnailSection}
       </div>
     </div>`;
 }
@@ -53,7 +64,7 @@ function buildOutlineHTML(outline) {
 /**
  * Builds the full HTML email body with Short script + optional Long outline
  */
-function buildScriptEmailHTML(angle, shortScript, longOutline) {
+function buildScriptEmailHTML(angle, shortScript, longOutline, thumbnailPath = null) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -117,7 +128,7 @@ function buildScriptEmailHTML(angle, shortScript, longOutline) {
               </div>
             </div>
           </div>
-          ${buildOutlineHTML(longOutline)}
+          ${buildOutlineHTML(longOutline, !!thumbnailPath)}
         </td></tr>
 
         <!-- Footer -->
@@ -138,7 +149,7 @@ function buildScriptEmailHTML(angle, shortScript, longOutline) {
 /**
  * Sends the script digest email.
  */
-async function sendScriptDigest(angle, shortScript, longOutline) {
+async function sendScriptDigest(angle, shortScript, longOutline, thumbnailPath = null) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -149,12 +160,27 @@ async function sendScriptDigest(angle, shortScript, longOutline) {
 
   const dayLabel = longOutline ? ' + 🎬 Weekly Video Outline' : '';
 
-  await transporter.sendMail({
+  // Build mail options with optional inline thumbnail attachment
+  const mailOptions = {
     from: `"YouTube AI Content Engine" <${process.env.GMAIL_USER}>`,
     to: process.env.RECIPIENT_EMAIL,
     subject: `✍️ Daily Shorts Script${dayLabel} — ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
-    html: buildScriptEmailHTML(angle, shortScript, longOutline),
-  });
+    html: buildScriptEmailHTML(angle, shortScript, longOutline, thumbnailPath),
+  };
+
+  // Attach thumbnail as inline image if generated
+  if (thumbnailPath && fs.existsSync(thumbnailPath)) {
+    mailOptions.attachments = [
+      {
+        filename: path.basename(thumbnailPath),
+        path: thumbnailPath,
+        cid: 'thumbnail', // referenced in HTML as cid:thumbnail
+      },
+    ];
+    console.log(`📎 Thumbnail attached to email: ${path.basename(thumbnailPath)}`);
+  }
+
+  await transporter.sendMail(mailOptions);
 }
 
 module.exports = { sendScriptDigest };

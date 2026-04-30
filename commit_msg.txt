@@ -1,0 +1,8 @@
+Phase 2: Full content automation pipeline upgrade
+
+Smart YouTube fetching with India region targeting, semantic scoring, and quota protection.
+Content calendar with 14-day topic deduplication using Jaccard similarity.
+Thumbnail generation via Pollinations.ai.
+Notion database integration and Discord webhook notifications.
+GitHub Actions upgrade with new optional secrets and artifact uploads.
+Gemini 2.5 Flash with viral formula, competitor gap, and vertical video rhythm prompts.
