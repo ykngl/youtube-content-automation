@@ -166,10 +166,12 @@ Respond in this exact JSON format (no markdown, no code blocks):
  */
 async function generateShortScript(angle) {
   const model = getClient().getGenerativeModel({ model: MODEL_NAME });
+  const channelName = process.env.CHANNEL_NAME || 'NGL';
 
   const prompt = `
 You are a top-tier YouTube Shorts scriptwriter who understands the VERTICAL VIDEO RHYTHM — the specific pacing and sentence structure that keeps viewers watching on mobile.
 
+Channel brand name: "${channelName}"
 Content angle: "${angle.angle}"
 Hook: "${angle.hook}"
 Target audience: "${angle.targetAudience}"
@@ -185,14 +187,14 @@ VERTICAL VIDEO RHYTHM RULES:
 - Build tension: start bold → escalate → resolve → CTA
 - No filler words ("basically", "actually", "like", "you know")
 - No intro ("Hey guys", "Welcome back") — START with the hook IMMEDIATELY
-- End with a curiosity-gap CTA (make them feel they'll miss something if they don't follow)
+- The CTA must mention the channel name "${channelName}" — e.g. "Follow ${channelName} for daily AI updates"
 
 SCRIPT STRUCTURE:
 1. Hook (exact hook sentence above)
 2. Point 1 + micro-hook (one surprising fact or question)
 3. Point 2 + micro-hook  
 4. Point 3 + micro-hook
-5. CTA: Make it specific, not generic — mention what they'll get by following
+5. CTA: Specific, not generic — mention "${channelName}" and what they'll get by following
 
 Respond in this exact JSON format (no markdown, no code blocks):
 {

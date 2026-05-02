@@ -20,14 +20,16 @@ function ensureThumbnailsDir() {
 
 /**
  * Builds an enhanced prompt from the thumbnail concept and video title.
- * Optimized for YouTube thumbnail aesthetics.
+ * Includes NGL channel branding on every thumbnail.
  */
 function buildImagePrompt(thumbnailConcept, title) {
+  const channelName = process.env.CHANNEL_NAME || 'NGL';
   return [
-    `YouTube thumbnail for a video titled "${title}".`,
+    `YouTube thumbnail for a video titled "${title}" by the channel "${channelName}"`,
     `Concept: ${thumbnailConcept}`,
+    `Branding: Include the text "${channelName}" prominently in the thumbnail — bold white text with a dark outline or colored background badge, positioned in the bottom-left or top-right corner.`,
     'Style: bold typography, high contrast, vivid colors, professional tech/AI aesthetic.',
-    'Format: 16:9 widescreen, eye-catching, no watermarks.',
+    'Format: 16:9 widescreen, eye-catching, no extra watermarks beyond the channel name.',
     'Mood: energetic, modern, futuristic tech feeling.',
   ].join(' ');
 }
