@@ -1,19 +1,19 @@
 {
-  "name": "youtube-ai-agent",
-  "version": "1.0.0",
-  "description": "YouTube AI Monitoring Agent - Sends a daily email digest of top AI-related YouTube videos.",
+  "name": "youtube-ai-content-agent",
+  "version": "3.0.0",
+  "description": "Fully automated YouTube Shorts pipeline — fetches trending AI videos, generates branded scripts + voiceover + video, and auto-uploads to your YouTube channel daily.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "setup": "node scripts/setup.js",
+    "auth": "node scripts/auth_youtube.js",
+    "test": "echo \"Run: node index.js\" && exit 0"
   },
   "keywords": [
-    "youtube",
-    "ai",
-    "monitoring",
-    "automation"
+    "youtube", "ai", "automation", "shorts", "content-pipeline",
+    "gemini", "ffmpeg", "tts", "notion", "discord"
   ],
-  "author": "",
+  "author": "NGL Channel",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {

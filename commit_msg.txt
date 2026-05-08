@@ -1,6 +1,1 @@
-Phase 3: Switch TTS to free Microsoft Edge neural voices
-
-Replace Google Cloud TTS (requires billing) with msedge-tts npm package.
-Uses en-IN-PrabhatNeural Indian English male voice — completely free, no API key needed.
-Add YouTube OAuth client credentials (Desktop App, My First Project).
-Add YOUTUBE_OAUTH_REFRESH_TOKEN from successful one-time auth flow.
+Add README, setup wizard, clean env example, v3.0.0
