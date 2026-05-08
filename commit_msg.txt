@@ -1,7 +1,9 @@
-Phase 2 fixes and NGL branding added
+Phase 3: AI video generation and YouTube auto-upload
 
-Fix: Notion API token corrected (O not 0 character)
-Fix: Notion connection now verified working
-Add: CHANNEL_NAME=NGL flows into thumbnail prompts and Shorts script CTAs
-Add: GitHub Actions workflow includes CHANNEL_NAME secret
-Add: Thumbnails now include NGL channel name badge in bottom-left corner
+New: services/videoGenerator.js - Google Cloud TTS voiceover, Pollinations.ai scene images, ffmpeg 9:16 MP4 assembly with NGL watermark and captions
+New: services/youtubeUploader.js - YouTube Data API v3 upload via OAuth2 refresh token
+New: scripts/auth_youtube.js - One-time OAuth setup script to get refresh token
+Modified: index.js - Phase 3 pipeline with video generation and YouTube upload steps
+Modified: .github/workflows/daily.yml - Added TTS and YouTube OAuth secrets, videos artifact
+Modified: .env.example - Documented Phase 3 environment variables
+Deps: fluent-ffmpeg, ffmpeg-static, @google-cloud/text-to-speech, googleapis

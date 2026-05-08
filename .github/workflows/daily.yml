@@ -1,8 +1,8 @@
-name: YouTube AI Daily Digest — Phase 2
+name: YouTube AI Daily Pipeline — Phase 3
 
 on:
   schedule:
-    # 6:00 AM IST = 00:30 UTC
+    # Phase 2+3 combined: 6:00 AM IST = 00:30 UTC
     - cron: '30 0 * * *'
   workflow_dispatch: # Allow manual triggering for testing
 
@@ -22,22 +22,28 @@ jobs:
       - name: 📦 Install dependencies
         run: npm install
 
-      - name: 🚀 Run YouTube AI Agent (Phase 2)
+      - name: 🚀 Run YouTube AI Agent (Phase 3)
         env:
+          # Core
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CHANNEL_NAME: ${{ secrets.CHANNEL_NAME }}
-          # Phase 2D: Notion integration (optional — skip if not set)
+          # Phase 2D: Notion integration (optional)
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
-          # Phase 2E: Discord webhook (optional — skip if not set)
+          # Phase 2E: Discord webhook (optional)
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          # Phase 3: Video generation + YouTube upload (optional)
+          GOOGLE_TTS_API_KEY: ${{ secrets.GOOGLE_TTS_API_KEY }}
+          YOUTUBE_OAUTH_CLIENT_ID: ${{ secrets.YOUTUBE_OAUTH_CLIENT_ID }}
+          YOUTUBE_OAUTH_CLIENT_SECRET: ${{ secrets.YOUTUBE_OAUTH_CLIENT_SECRET }}
+          YOUTUBE_OAUTH_REFRESH_TOKEN: ${{ secrets.YOUTUBE_OAUTH_REFRESH_TOKEN }}
         run: node index.js
 
-      - name: 💾 Upload generated scripts & thumbnails as artifacts
+      - name: 💾 Upload all generated content as artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -45,11 +51,12 @@ jobs:
           path: |
             outputs/*.json
             outputs/thumbnails/
+            outputs/videos/
             outputs/topic_history.json
           retention-days: 30
 
       - name: 🔔 Notify on failure
         if: failure()
         run: |
-          echo "❌ YouTube AI Agent failed on run #${{ github.run_number }}"
+          echo "❌ YouTube AI Agent Phase 3 failed on run #${{ github.run_number }}"
           echo "Check the logs at: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

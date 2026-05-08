@@ -1,7 +1,8 @@
-// index.js — Phase 2
+// index.js — Phase 3
 // Main entry point for the YouTube AI Content Automation Agent
 // Orchestrates: YouTube fetch → email digest → Gemini analysis → topic dedup →
-//               Shorts script → long-form outline → thumbnail → Notion → Discord → email
+//               Shorts script → AI video generation → long-form outline →
+//               thumbnail → Notion → Discord → email → YouTube upload
 
 require('dotenv').config();
 
@@ -22,6 +23,8 @@ const { isDuplicateTopic, saveTopicToHistory, getRecentTopicsSummary, loadHistor
 const { generateThumbnailSafe } = require('./services/thumbnailGenerator');
 const { pushToNotionSafe } = require('./services/notion');
 const { sendDiscordNotificationSafe } = require('./services/notifier');
+const { generateVideo } = require('./services/videoGenerator');
+const { uploadToYouTubeSafe } = require('./services/youtubeUploader');
 
 /**
  * Returns true if today is Monday (1) or Thursday (4) — long-form outline days.
@@ -91,6 +94,16 @@ async function main() {
   saveOutput(`short_${dateStr}.json`, { angle, shortScript });
   console.log(`✅ Shorts script: "${shortScript.title}" (${shortScript.estimatedDuration})\n`);
 
+  // ── Step 6B: Generate AI video from script (Phase 3) ──────────────────────
+  let videoPath = null;
+  try {
+    console.log('🎬 Generating AI video from script...');
+    videoPath = await generateVideo(shortScript, dateStr);
+  } catch (videoErr) {
+    console.warn('⚠️  Video generation failed (non-fatal):', videoErr.message);
+    console.warn('   Check GOOGLE_TTS_API_KEY is set in .env');
+  }
+
   // ── Step 7: Generate long-form outline (Mon & Thu only) ────────────────────
   let longOutline = null;
   if (isLongFormDay()) {
@@ -123,13 +136,21 @@ async function main() {
   // ── Step 12: Send Discord notification ────────────────────────────────────
   await sendDiscordNotificationSafe(angle, shortScript, longOutline, notionUrl);
 
+  // ── Step 13: YouTube upload (Phase 3) ─────────────────────────────────────
+  let youtubeResult = null;
+  if (videoPath) {
+    youtubeResult = await uploadToYouTubeSafe(shortScript, angle, dateStr, 'public');
+  }
+
   // ── Done ───────────────────────────────────────────────────────────────────
-  console.log('🎉 Phase 2 pipeline complete!\n');
+  console.log('🎉 Phase 3 pipeline complete!\n');
   console.log('─'.repeat(60));
   console.log(`📌 Today's angle:  ${angle.angle}`);
   console.log(`📱 Shorts title:   ${shortScript.title}`);
   if (longOutline) console.log(`🎬 Long-form:      ${longOutline.title}`);
   if (thumbnailPath) console.log(`🖼  Thumbnail:      ${thumbnailPath}`);
+  if (videoPath) console.log(`🎥 Video:          ${videoPath}`);
+  if (youtubeResult) console.log(`📺 YouTube:        ${youtubeResult.videoUrl}`);
   if (notionUrl) console.log(`📋 Notion page:    ${notionUrl}`);
   console.log('─'.repeat(60));
 }
