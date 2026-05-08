@@ -1,9 +1,6 @@
-Phase 3: AI video generation and YouTube auto-upload
+Phase 3: Switch TTS to free Microsoft Edge neural voices
 
-New: services/videoGenerator.js - Google Cloud TTS voiceover, Pollinations.ai scene images, ffmpeg 9:16 MP4 assembly with NGL watermark and captions
-New: services/youtubeUploader.js - YouTube Data API v3 upload via OAuth2 refresh token
-New: scripts/auth_youtube.js - One-time OAuth setup script to get refresh token
-Modified: index.js - Phase 3 pipeline with video generation and YouTube upload steps
-Modified: .github/workflows/daily.yml - Added TTS and YouTube OAuth secrets, videos artifact
-Modified: .env.example - Documented Phase 3 environment variables
-Deps: fluent-ffmpeg, ffmpeg-static, @google-cloud/text-to-speech, googleapis
+Replace Google Cloud TTS (requires billing) with msedge-tts npm package.
+Uses en-IN-PrabhatNeural Indian English male voice — completely free, no API key needed.
+Add YouTube OAuth client credentials (Desktop App, My First Project).
+Add YOUTUBE_OAUTH_REFRESH_TOKEN from successful one-time auth flow.

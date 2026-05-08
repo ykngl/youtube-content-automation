@@ -15,8 +15,7 @@ const http  = require('http');
 const { execSync } = require('child_process');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
-const textToSpeech = require('@google-cloud/text-to-speech');
-const axios = require('axios');
+const { MsEdgeTTS, OUTPUT_FORMAT } = require('msedge-tts');
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
@@ -40,32 +39,23 @@ function buildScenes(script) {
   ];
 }
 
-// ── Step 1: Google Cloud TTS → voiceover.mp3 ─────────────────────────────────
+// ── Step 1: Microsoft Edge TTS → voiceover.mp3 (FREE — no API key needed) ────
 async function generateVoiceover(fullScript, outputPath) {
-  console.log('🎤 Generating voiceover with Google Cloud TTS...');
+  console.log('🎤 Generating voiceover with Microsoft Edge TTS (Indian English)...');
 
-  const apiKey = process.env.GOOGLE_TTS_API_KEY;
-  if (!apiKey) throw new Error('GOOGLE_TTS_API_KEY not set in .env');
+  const tts = new MsEdgeTTS();
+  // en-IN-PrabhatNeural — Indian English male neural voice (free)
+  await tts.setMetadata('en-IN-PrabhatNeural', OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
 
-  const client = new textToSpeech.TextToSpeechClient({
-    apiKey,
+  await new Promise((resolve, reject) => {
+    const { audioStream } = tts.toStream(fullScript);
+    const output = fs.createWriteStream(outputPath);
+    audioStream.pipe(output);
+    output.on('finish', resolve);
+    output.on('error', reject);
+    audioStream.on('error', reject);
   });
 
-  const [response] = await client.synthesizeSpeech({
-    input: { text: fullScript },
-    voice: {
-      languageCode: 'en-IN',
-      name: 'en-IN-Standard-D', // Indian English male
-      ssmlGender: 'MALE',
-    },
-    audioConfig: {
-      audioEncoding: 'MP3',
-      speakingRate: 1.05, // slightly faster for Shorts pacing
-      pitch: 0,
-    },
-  });
-
-  fs.writeFileSync(outputPath, response.audioContent, 'binary');
   console.log(`✅ Voiceover saved: ${path.basename(outputPath)}`);
 }
 
