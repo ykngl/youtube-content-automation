@@ -1,239 +1,230 @@
-# 🤖 YouTube AI Content Automation Agent
+# 🤖 YouTube AI Content Agent
 
-> **Fully automated YouTube Shorts pipeline** — fetches trending AI videos, analyzes them with Gemini, generates a branded script + voiceover + thumbnail, and uploads directly to your YouTube channel every morning.
+> **Fully automated YouTube content pipeline** — fetches trending AI videos daily, generates viral Shorts scripts with Gemini AI, creates voiceover videos, and uploads them to your YouTube channel automatically. Built for Indian creators. Zero manual work after setup.
 
 ---
 
-## ✨ What It Does
-
-Every day at **6:00 AM IST** (runs automatically on GitHub Actions):
+## ✨ What It Does (Daily at 6:00 AM IST — Automatic)
 
 | Step | What Happens |
-|---|---|
-| 🔎 **Fetch** | Finds top 10 AI videos from India (last 48h, 8+ min, high relevance) |
-| 🤖 **Analyze** | Gemini AI identifies the viral angle, content gap, and emotional hook |
-| 📝 **Script** | Generates a branded 45–60s Shorts script (hook → 3 points → CTA with your channel name) |
-| 🎤 **Voiceover** | Microsoft Edge Neural TTS creates an Indian English voiceover (FREE, no API key) |
-| 🖼 **Thumbnail** | AI-generates a 1280×720 branded thumbnail via Pollinations.ai (FREE) |
-| 🎬 **Video** | ffmpeg assembles a 9:16 vertical MP4 with captions and your channel watermark |
-| 📋 **Notion** | Logs the content brief to your Notion Content Calendar |
-| 🟣 **Discord** | Sends a rich embed notification to your Discord server |
-| 📧 **Email** | Sends the full script + thumbnail to your inbox |
-| 📺 **Upload** | Auto-uploads the video to your YouTube channel |
+|------|-------------|
+| 🔎 **Fetch** | Searches YouTube India for top AI/tech videos from last 48h |
+| 🤖 **Analyze** | Gemini 2.5 Flash identifies viral angles, content gaps & hooks |
+| 📝 **Script** | Generates a 50-60 sec Shorts script with NGL/your branding |
+| 🎤 **Voiceover** | Microsoft Edge Neural TTS (Indian English, free) |
+| 🖼 **Visuals** | 5 AI-generated scene images via Pollinations.ai (free) |
+| 🎬 **Video** | ffmpeg assembles 9:16 MP4 with captions + channel watermark |
+| 📧 **Email** | Research digest + scripts emailed to you |
+| 📋 **Notion** | Content brief logged to your Notion content calendar |
+| 🟣 **Discord** | Rich embed notification sent to your server |
+| 📺 **Upload** | Video auto-uploaded to your YouTube channel |
 
 ---
 
-## 🏗 Architecture
+## 📁 Project Structure
 
 ```
-index.js                    ← Main pipeline orchestrator
-services/
-  ├── youtube.js            ← YouTube Data API v3 fetch + semantic scoring
-  ├── gemini.js             ← Gemini 2.5 Flash analysis + script generation
-  ├── videoGenerator.js     ← TTS voiceover + AI images + ffmpeg assembly
-  ├── youtubeUploader.js    ← YouTube OAuth 2.0 auto-upload
-  ├── thumbnailGenerator.js ← Pollinations.ai thumbnail generation
-  ├── notion.js             ← Notion database sync
-  ├── notifier.js           ← Discord webhook notifications
-  ├── scriptMailer.js       ← Gmail email delivery
-  ├── mail.js               ← Research email digest
-  └── history.js            ← 14-day topic deduplication (Jaccard similarity)
-scripts/
-  ├── setup.js              ← Interactive first-time setup wizard
-  └── auth_youtube.js       ← One-time YouTube OAuth authorization
-.github/workflows/
-  └── daily.yml             ← GitHub Actions cron schedule
+youtube-ai-agent/
+├── index.js                    # Main pipeline orchestrator
+├── .env                        # Your credentials (never commit this!)
+├── .env.example                # Template for all required variables
+├── package.json
+│
+├── services/
+│   ├── youtube.js              # YouTube Data API — semantic video search (India)
+│   ├── gemini.js               # Gemini 2.5 Flash — content analysis & script generation
+│   ├── videoGenerator.js       # TTS voiceover + AI images + ffmpeg video assembly
+│   ├── youtubeUploader.js      # YouTube Data API — OAuth upload
+│   ├── thumbnailGenerator.js   # Pollinations.ai thumbnail images
+│   ├── history.js              # 14-day topic dedup (Jaccard similarity)
+│   ├── notion.js               # Notion content calendar integration
+│   ├── notifier.js             # Discord webhook notifications
+│   ├── mail.js                 # Gmail research email digest
+│   └── scriptMailer.js         # Gmail scripts + thumbnail email
+│
+├── scripts/
+│   ├── setup.js                # ⭐ Interactive setup wizard (run this first!)
+│   └── auth_youtube.js         # One-time YouTube OAuth authorization
+│
+└── .github/workflows/
+    └── daily.yml               # GitHub Actions — runs daily at 6:00 AM IST
 ```
 
 ---
 
 ## 🚀 Quick Start — New Channel Setup
 
-### Step 1 — Fork / Clone the Repository
+### Prerequisites
+- **Node.js 18+** installed → [nodejs.org](https://nodejs.org)
+- A **Gmail account** (for sending daily emails)
+- A **Google Cloud project** (free) for YouTube + Gemini APIs
+- A **GitHub account** (for automated daily runs)
+
+---
+
+### Step 1 — Clone / Download the Project
 
 ```bash
-# Option A: Fork on GitHub (recommended for each new channel)
-# Go to github.com/ykngl/youtube-content-automation → Fork
+# Clone from GitHub
+git clone https://github.com/ykngl/youtube-content-automation.git my-channel-agent
+cd my-channel-agent
 
-# Option B: Clone directly
-git clone https://github.com/ykngl/youtube-content-automation.git my-new-channel
-cd my-new-channel
+# OR download ZIP and extract, then:
+cd youtube-ai-agent
 ```
 
-### Step 2 — Run the Setup Wizard
+---
+
+### Step 2 — Install Dependencies
+
+```bash
+npm install
+```
+
+---
+
+### Step 3 — Run the Setup Wizard
 
 ```bash
 node scripts/setup.js
 ```
 
-The wizard will guide you through all API keys interactively. Or follow the manual steps below.
+The wizard will guide you through collecting all API keys interactively and create your `.env` file automatically.
 
 ---
 
-## 🔑 Manual Setup — All API Keys
+## 🔑 API Keys — Where to Get Each One
 
-### 1. YouTube Data API v3 Key (`YOUTUBE_API_KEY`)
+### 1. YouTube Data API v3 Key (Required — Free)
+> Used to search YouTube for trending AI videos
 
 1. Go to [console.cloud.google.com](https://console.cloud.google.com)
-2. Create a new project (one per channel is recommended)
-3. **APIs & Services → Library** → search **"YouTube Data API v3"** → Enable
-4. **APIs & Services → Credentials → Create Credentials → API Key**
-5. Copy the key → paste as `YOUTUBE_API_KEY`
+2. Create a new project (or select existing)
+3. **APIs & Services** → **Library** → search `YouTube Data API v3` → **Enable**
+4. **APIs & Services** → **Credentials** → **Create Credentials** → **API Key**
+5. Copy the key (starts with `AIza...`)
 
-> 💡 **Free quota:** 10,000 units/day. The agent uses ~3,000 units/day.
+> **Free quota:** 10,000 units/day. The agent uses ~3,000/day.
 
 ---
 
-### 2. Gemini API Key (`GEMINI_API_KEY`)
+### 2. Google Gemini API Key (Required — Free)
+> Used for AI content analysis and script generation
 
 1. Go to [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
 2. Click **Create API Key**
-3. Copy → paste as `GEMINI_API_KEY`
+3. Copy the key (starts with `AIza...`)
 
-> 💡 **Free tier:** 1,500 requests/day with Gemini 2.5 Flash (more than enough).
-
----
-
-### 3. Gmail App Password (`GMAIL_USER` + `GMAIL_PASS`)
-
-1. Use a Gmail account for sending emails
-2. Enable 2-Factor Authentication: [myaccount.google.com/security](https://myaccount.google.com/security)
-3. Go to **App Passwords**: [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
-4. App: **Mail** → Device: **Other (custom name)** → name it "YouTube Agent"
-5. Copy the 16-character password (format: `xxxx xxxx xxxx xxxx`)
-6. Set `GMAIL_USER=your@gmail.com` and `GMAIL_PASS=xxxx xxxx xxxx xxxx`
+> **Free quota:** 1,500 requests/day on Gemini 2.5 Flash. The agent uses ~5-10/day.
 
 ---
 
-### 4. Notion Integration (OPTIONAL)
+### 3. Gmail App Password (Required — Free)
+> Used to send daily email digests
 
-1. Go to [notion.so/my-integrations](https://www.notion.so/my-integrations)
-2. Click **New Integration** → Name it → Select your workspace → Submit
-3. Copy **Internal Integration Token** → paste as `NOTION_API_KEY`
-4. Create a new Notion database with these columns:
-   - **Name** (Title)
-   - **Date** (Date)
-   - **Status** (Select: Draft, In Progress, Published)
-   - **Angle** (Text)
-5. Open the database page → click `···` (top right) → **Add connections** → select your integration
-6. Copy the database ID from the URL:
-   `https://notion.so/xxxxxxxx` → the 32-char ID after the last `/` → paste as `NOTION_DATABASE_ID`
+1. Go to your Google Account → **Security**
+2. Enable **2-Step Verification** (required for App Passwords)
+3. Go to [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
+4. App name: `YouTube AI Agent`
+5. Copy the 16-character password
+
+> **Tip:** Use a dedicated Gmail account for the agent, not your personal one.
 
 ---
 
-### 5. Discord Webhook (OPTIONAL)
+### 4. Notion Integration (Optional — Free)
+> Logs each day's content brief to a Notion database
 
-1. Open your Discord server → right-click a channel → **Edit Channel**
-2. **Integrations → Webhooks → New Webhook**
-3. Name it (e.g. "YouTube AI Agent") → **Copy Webhook URL**
-4. Paste as `DISCORD_WEBHOOK_URL`
+1. Go to [notion.so/profile/integrations](https://www.notion.so/profile/integrations)
+2. Click **+ New integration** → **Internal**
+3. Name: `YouTube AI Agent` → **Save**
+4. Copy the **Internal Integration Token** (starts with `ntn_` or `secret_`)
+
+**Get your Database ID:**
+1. Create a new database page in Notion (or use existing)
+2. Add columns: `Name` (title), `Date` (date), `Status` (select), `Angle` (rich text)
+3. Click **Share** → copy the URL
+4. The Database ID is the 32-character string in the URL:
+   `https://notion.so/your-workspace/**DATABASE_ID_HERE**?v=...`
+
+**Connect the integration to your database:**
+1. Open the database page in Notion
+2. Click `···` (top right) → **Connections** → Add your `YouTube AI Agent` integration
 
 ---
 
-### 6. YouTube OAuth 2.0 (for auto-upload)
+### 5. Discord Webhook (Optional — Free)
+> Sends rich notifications to your Discord server
 
-This is a **one-time setup** that lets the agent upload videos to your YouTube channel forever.
+1. Open Discord → go to your server
+2. Right-click a channel → **Edit Channel** → **Integrations** → **Webhooks**
+3. Click **New Webhook** → name it `YouTube AI Agent`
+4. Click **Copy Webhook URL**
 
-#### 6a. Create OAuth credentials
+---
 
-1. Go to [console.cloud.google.com](https://console.cloud.google.com) → same project as your YouTube API Key
-2. **APIs & Services → OAuth consent screen**:
-   - User type: **External** → Create
+### 6. YouTube Auto-Upload OAuth 2.0 (Optional)
+> Automatically uploads the daily video to your YouTube channel
+
+This requires a 2-part setup:
+
+#### Part A — Create OAuth Credentials
+1. Go to [console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
+2. **Enable** the **YouTube Data API v3** on your project (if not done already)
+3. Click **Create Credentials** → **OAuth client ID**
+4. If prompted, configure the **OAuth Consent Screen** first:
+   - User Type: **External**
    - App name: `YouTube AI Agent`
-   - Support email: your email
-   - Developer contact: your email
-   - Save and Continue through all steps
-   - **Test Users** tab → **Add Users** → add your YouTube channel's Google email
-3. **APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID**:
-   - Application type: **Desktop app**
-   - Name: `YouTube AI Agent`
-   - Click **Create**
-4. Copy **Client ID** → paste as `YOUTUBE_OAUTH_CLIENT_ID`
-5. Copy **Client Secret** → paste as `YOUTUBE_OAUTH_CLIENT_SECRET`
+   - Add your YouTube channel email as a **Test User**
+5. Application type: **Desktop app**
+6. Name: `YouTube AI Agent`
+7. Click **Create** → copy the **Client ID** and **Client Secret**
 
-#### 6b. Get your Refresh Token (one-time)
-
+#### Part B — Authorize Your Channel (One-Time)
 ```bash
+# Add to .env first:
+# YOUTUBE_OAUTH_CLIENT_ID=your-client-id
+# YOUTUBE_OAUTH_CLIENT_SECRET=your-client-secret
+
 node scripts/auth_youtube.js
 ```
+1. Copy the URL shown in the terminal
+2. Open it in your browser
+3. **Log in with the Google account that owns your YouTube channel**
+4. Click **Allow**
+5. Copy the authorization code shown
+6. Paste it in the terminal
+7. Copy the `YOUTUBE_OAUTH_REFRESH_TOKEN` shown and add it to `.env`
 
-1. Open the URL printed in your terminal
-2. Log in with the Google account that owns your YouTube channel
-3. Click **Allow**
-4. Copy the authorization code → paste it back in the terminal
-5. Copy the **REFRESH TOKEN** printed → paste as `YOUTUBE_OAUTH_REFRESH_TOKEN`
-
-> ✅ This token never expires. You only need to do this once per channel.
-
----
-
-## 📋 Your `.env` File
-
-After setup, your `.env` should look like this:
-
-```env
-CHANNEL_NAME=YourChannelName
-
-YOUTUBE_API_KEY=AIzaSy...
-GMAIL_USER=you@gmail.com
-GMAIL_PASS=xxxx xxxx xxxx xxxx
-RECIPIENT_EMAIL=you@gmail.com
-GEMINI_API_KEY=AIzaSy...
-
-# Optional
-NOTION_API_KEY=ntn_...
-NOTION_DATABASE_ID=xxxxxxxx...
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
-
-# YouTube auto-upload
-YOUTUBE_OAUTH_CLIENT_ID=xxxxxxx.apps.googleusercontent.com
-YOUTUBE_OAUTH_CLIENT_SECRET=GOCSPX-...
-YOUTUBE_OAUTH_REFRESH_TOKEN=1//0g...
-```
+> **Important:** After authorizing, the refresh token works permanently — you never need to do this again.
 
 ---
 
-## ⚙️ GitHub Actions — Automated Daily Run
-
-### Step 1 — Push to GitHub
+## ⚙️ Environment Variables Reference
 
 ```bash
-git add -A
-git commit -m "Initial setup for [Channel Name]"
-git push origin main
+# .env — Complete reference
+
+# ── Required ──────────────────────────────────────────────────────────────────
+YOUTUBE_API_KEY=AIza...           # YouTube Data API v3 key
+GEMINI_API_KEY=AIza...            # Google Gemini AI key
+GMAIL_USER=you@gmail.com          # Gmail account for sending emails
+GMAIL_PASS=xxxx xxxx xxxx xxxx    # Gmail App Password (16 chars)
+RECIPIENT_EMAIL=you@gmail.com     # Where to receive daily digests
+CHANNEL_NAME=YourChannelName      # Shown on thumbnails & in scripts
+
+# ── Optional: Notion ──────────────────────────────────────────────────────────
+NOTION_API_KEY=ntn_...            # Leave blank to skip Notion
+NOTION_DATABASE_ID=32chars...     # Leave blank to skip Notion
+
+# ── Optional: Discord ─────────────────────────────────────────────────────────
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...  # Leave blank to skip
+
+# ── Optional: YouTube Auto-Upload ─────────────────────────────────────────────
+YOUTUBE_OAUTH_CLIENT_ID=...apps.googleusercontent.com
+YOUTUBE_OAUTH_CLIENT_SECRET=GOCSPX-...
+YOUTUBE_OAUTH_REFRESH_TOKEN=1//...   # From: node scripts/auth_youtube.js
 ```
-
-### Step 2 — Add GitHub Secrets
-
-Go to your repo → **Settings → Secrets and variables → Actions → New repository secret**
-
-Add each key from your `.env` file as a separate secret:
-
-| Secret Name | Where to find the value |
-|---|---|
-| `CHANNEL_NAME` | Your channel name |
-| `YOUTUBE_API_KEY` | Google Cloud Console |
-| `GMAIL_USER` | Your Gmail address |
-| `GMAIL_PASS` | Gmail App Password |
-| `RECIPIENT_EMAIL` | Report recipient email |
-| `GEMINI_API_KEY` | Google AI Studio |
-| `NOTION_API_KEY` | Notion integrations page |
-| `NOTION_DATABASE_ID` | Notion database URL |
-| `DISCORD_WEBHOOK_URL` | Discord channel webhook |
-| `YOUTUBE_OAUTH_CLIENT_ID` | Google Cloud Console |
-| `YOUTUBE_OAUTH_CLIENT_SECRET` | Google Cloud Console |
-| `YOUTUBE_OAUTH_REFRESH_TOKEN` | From `node scripts/auth_youtube.js` |
-
-### Step 3 — Enable Actions
-
-Go to your repo → **Actions** tab → Click **Enable GitHub Actions**
-
-The pipeline will now run automatically every day at **6:00 AM IST** (00:30 UTC).
-
-### Manual Trigger
-
-You can trigger it anytime:
-**Actions tab → "YouTube AI Daily Pipeline" → Run workflow**
 
 ---
 
@@ -242,119 +233,174 @@ You can trigger it anytime:
 ```bash
 # Run the full pipeline once
 node index.js
-
-# Run just the OAuth setup
-node scripts/auth_youtube.js
-
-# Run interactive setup wizard
-node scripts/setup.js
 ```
+
+**What to check:**
+- ✅ Email received in your inbox
+- ✅ `outputs/short_YYYY-MM-DD.json` created
+- ✅ `outputs/videos/short_YYYY-MM-DD.mp4` created
+- ✅ Notion page created (if configured)
+- ✅ Discord notification received (if configured)
+- ✅ Video uploaded to YouTube (if OAuth configured)
 
 ---
 
-## 🔧 Customization
+## 🤖 GitHub Actions — Automated Daily Runs
 
-### Change Content Topics / Niche
+### Step 1 — Fork / Push to GitHub
 
-Edit `services/youtube.js` → `SEARCH_TOPICS` array:
+```bash
+# If starting fresh:
+git init
+git add -A
+git commit -m "Initial commit — YouTube AI Agent"
+git remote add origin https://github.com/YOUR_USERNAME/your-repo-name.git
+git push -u origin main
+```
 
+### Step 2 — Add GitHub Secrets
+
+Go to your repo → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
+
+Add ALL values from your `.env` file as individual secrets:
+
+| Secret Name | Description |
+|-------------|-------------|
+| `YOUTUBE_API_KEY` | YouTube Data API key |
+| `GEMINI_API_KEY` | Gemini AI key |
+| `GMAIL_USER` | Gmail address |
+| `GMAIL_PASS` | Gmail App Password |
+| `RECIPIENT_EMAIL` | Email recipient |
+| `CHANNEL_NAME` | Your channel brand name |
+| `NOTION_API_KEY` | (optional) |
+| `NOTION_DATABASE_ID` | (optional) |
+| `DISCORD_WEBHOOK_URL` | (optional) |
+| `YOUTUBE_OAUTH_CLIENT_ID` | (optional) |
+| `YOUTUBE_OAUTH_CLIENT_SECRET` | (optional) |
+| `YOUTUBE_OAUTH_REFRESH_TOKEN` | (optional) |
+
+### Step 3 — The workflow runs automatically!
+
+The pipeline triggers at **6:00 AM IST (00:30 UTC)** every day.
+
+To trigger manually: Go to **Actions** tab → **YouTube AI Daily Pipeline** → **Run workflow**
+
+---
+
+## 🎨 Customization
+
+### Change Target Region
+In `services/youtube.js`, change:
 ```js
-const SEARCH_TOPICS = [
-  'fitness AI',
-  'personal finance AI',
-  'cooking automation',
-  // ... add your niche topics
+regionCode: 'IN',   // Change to: US, GB, CA, AU, etc.
+```
+
+### Change Content Topics
+In `services/youtube.js`, update the `TOPICS` array:
+```js
+const TOPICS = [
+  'AI tools 2026',
+  'machine learning tutorial',
+  // Add your niche topics here
 ];
 ```
 
-### Change Region
-
-Edit `services/youtube.js`:
-```js
-const REGION = 'US'; // Change from 'IN' to your country code
-```
-
-### Change Posting Schedule
-
-Edit `.github/workflows/daily.yml`:
+### Change Upload Schedule
+In `.github/workflows/daily.yml`:
 ```yaml
-- cron: '30 0 * * *'  # 6:00 AM IST = 00:30 UTC
-# Change to your preferred time (UTC)
+# 6:00 AM IST = 00:30 UTC
+- cron: '30 0 * * *'
+
+# Change to 8:00 AM IST = 02:30 UTC
+- cron: '30 2 * * *'
 ```
 
-### Change Voice
-
-Edit `services/videoGenerator.js`:
+### Change TTS Voice
+In `services/videoGenerator.js`:
 ```js
+// Indian English male (default)
 await tts.setMetadata('en-IN-PrabhatNeural', ...);
+
 // Other options:
-// en-IN-NeerjaNeural   (Indian English female)
-// en-US-GuyNeural      (US English male)
-// en-GB-RyanNeural     (British English male)
-// hi-IN-MadhurNeural   (Hindi male)
+// en-IN-NeerjaNeural        → Indian English female
+// en-US-GuyNeural           → US English male
+// en-US-JennyNeural         → US English female
+// hi-IN-MadhurNeural        → Hindi male
+// hi-IN-SwaraNeural         → Hindi female
+```
+
+### Change Long-Form Days
+In `index.js`:
+```js
+function isLongFormDay() {
+  const day = new Date().getDay();
+  return day === 1 || day === 4; // Mon & Thu → change as needed
+}
 ```
 
 ---
 
-## 💰 Cost Breakdown
+## 📊 API Quotas & Limits (Free Tier)
 
-| Service | Cost |
-|---|---|
-| YouTube Data API v3 | **FREE** (10K units/day quota) |
-| Gemini 2.5 Flash | **FREE** (1,500 req/day free tier) |
-| Microsoft Edge TTS (voiceover) | **FREE** (no API key needed) |
-| Pollinations.ai (images) | **FREE** (no API key needed) |
-| GitHub Actions | **FREE** (2,000 min/month free tier) |
-| Gmail SMTP | **FREE** |
-| Notion API | **FREE** |
-| Discord Webhooks | **FREE** |
-| **Total** | **$0/month** |
+| API | Free Limit | Agent Usage |
+|-----|-----------|-------------|
+| YouTube Data API v3 | 10,000 units/day | ~3,000/day |
+| Gemini 2.5 Flash | 1,500 req/day | ~10/day |
+| Pollinations.ai | Unlimited | 5 images/day |
+| Microsoft Edge TTS | Unlimited | 1 request/day |
+| Gmail SMTP | 500 emails/day | 2 emails/day |
+| YouTube Upload API | 1,600 units/upload | 1 upload/day |
+
+> All free tiers are sufficient for daily use. No credit card required for core features.
 
 ---
 
 ## 🐛 Troubleshooting
 
-### "YouTube API quota exceeded"
-- The free quota is 10,000 units/day, reset at midnight Pacific time
-- The agent uses ~3,000 units/run — safe for 1 run/day
-- If you hit limits, wait until next day or reduce `PAGES_PER_TOPIC` in `youtube.js`
+### ❌ YouTube API quota exceeded
+```
+403 quotaExceeded
+```
+→ Quota resets daily at midnight Pacific Time. Wait and retry.
 
-### "Notion: API token is invalid"
-- Make sure the token starts with `ntn_` (not `secret_`)
-- Verify you shared the database with your integration in Notion
-- Check character accuracy — `O` (letter) vs `0` (zero) are common mistakes
+### ❌ Gemini 503 / 429 errors
+→ Built-in retry logic handles this automatically (up to 5 retries with backoff).
 
-### "YouTube upload failed: The caller does not have permission"
-- Re-run `node scripts/auth_youtube.js` to refresh the OAuth token
-- Make sure you added your account as a **Test User** in the OAuth consent screen
-- Confirm the YouTube channel is associated with the Google account you authorized
+### ❌ Video not generated
+```
+⚠️ Video generation failed (non-fatal)
+```
+→ Check your internet connection (needed for Pollinations.ai image generation).
+→ The pipeline continues without video — email + Notion + Discord still work.
 
-### Gemini 503 / 429 errors
-- These are transient — the agent automatically retries with exponential backoff
-- If persistent, check your Gemini API key quota at aistudio.google.com
+### ❌ YouTube upload fails
+```
+⚠️ YouTube OAuth credentials not set — skipping upload.
+```
+→ Run `node scripts/auth_youtube.js` to complete OAuth setup.
+
+### ❌ Notion "API token is invalid"
+→ Make sure the token starts with `ntn_` (not `secret_` for older integrations).
+→ Verify the integration is connected to the database (open DB → ··· → Connections).
 
 ---
 
-## 📁 Project Structure for Multiple Channels
+## 📜 License
 
-To run this for multiple channels, create one GitHub repo per channel:
-
-```
-github.com/yourorg/channel-ngl-agent      ← CHANNEL_NAME=NGL
-github.com/yourorg/channel-techbro-agent  ← CHANNEL_NAME=TechBro
-github.com/yourorg/channel-hindi-agent    ← CHANNEL_NAME=HindiTech
-```
-
-Each repo has its own:
-- GitHub Secrets (different CHANNEL_NAME, YOUTUBE_OAUTH_REFRESH_TOKEN, etc.)
-- Notion database
-- Discord server/channel
-- Recipient email
-
-The code is identical — only the secrets differ.
+MIT — Free to use, modify, and distribute for any channel.
 
 ---
 
-## 📬 Support
+## 🙏 Built With
 
-Built with ❤️ by the NGL automation pipeline.
+- [Google Gemini AI](https://ai.google.dev/) — Content analysis & scripting
+- [YouTube Data API v3](https://developers.google.com/youtube/v3) — Video search & upload
+- [Microsoft Edge TTS](https://github.com/Ealenn/Echo-Server) (`msedge-tts`) — Free neural voiceover
+- [Pollinations.ai](https://pollinations.ai/) — Free AI image generation
+- [ffmpeg](https://ffmpeg.org/) — Video assembly
+- [Notion API](https://developers.notion.com/) — Content calendar
+- [Nodemailer](https://nodemailer.com/) — Email delivery
+
+---
+
+*Made with ❤️ for Indian YouTube creators — automate your content, focus on growing.*

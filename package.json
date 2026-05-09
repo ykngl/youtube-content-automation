@@ -1,19 +1,21 @@
 {
-  "name": "youtube-ai-content-agent",
+  "name": "youtube-ai-agent",
   "version": "3.0.0",
-  "description": "Fully automated YouTube Shorts pipeline — fetches trending AI videos, generates branded scripts + voiceover + video, and auto-uploads to your YouTube channel daily.",
+  "description": "Fully automated YouTube Shorts content pipeline — AI research, script generation, video creation, and auto-upload. Built for Indian creators.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "setup": "node scripts/setup.js",
     "auth": "node scripts/auth_youtube.js",
-    "test": "echo \"Run: node index.js\" && exit 0"
+    "test": "echo \"Run: node index.js to test the full pipeline\" && exit 0"
   },
   "keywords": [
-    "youtube", "ai", "automation", "shorts", "content-pipeline",
-    "gemini", "ffmpeg", "tts", "notion", "discord"
+    "youtube",
+    "ai",
+    "monitoring",
+    "automation"
   ],
-  "author": "NGL Channel",
+  "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
